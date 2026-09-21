@@ -150,9 +150,6 @@ public final class LanguageKeyHandler extends YamlFileHandler {
         if (key == null || key.isEmpty()) {
             return "";
         }
-        if (key.contains("happy_ghast_one_cm")) {
-            return "Distance by Happy Ghast";
-        }
         if (isStatKey(key)) {
             return getStatKeyTranslationFromFile(key);
         }
