@@ -38,7 +38,7 @@ public class StatCalculatedEvent extends Event {
         this.sender = sender;
         this.request = request;
         this.result = result;
-    }
+    } 
 
     /**
      * Gets the CommandSender who requested this statistic lookup.
