@@ -133,6 +133,7 @@ public final class StatCommand implements CommandExecutor {
         private String subStatName;
         private Target target;
         private String playerName;
+        private int pageNumber = 1;
         private StatRequest<?> request;
 
         private ArgProcessor(CommandSender sender, String[] args) {
@@ -142,6 +143,7 @@ public final class StatCommand implements CommandExecutor {
             extractStatistic();
             extractSubStatistic();
             extractTarget();
+            extractPageNumber();
             combineProcessedArgsIntoRequest();
         }
 
@@ -155,7 +157,7 @@ public final class StatCommand implements CommandExecutor {
                     switch (target) {
                 case PLAYER -> new PlayerStatRequest(sender, playerName);
                 case SERVER -> new ServerStatRequest(sender);
-                case TOP -> new TopStatRequest(sender, config.getTopListMaxSize());
+                case TOP -> new TopStatRequest(sender, config.getTopListMaxSize(), pageNumber);
             };
 
             switch (statistic.getType()) {
@@ -215,6 +217,23 @@ public final class StatCommand implements CommandExecutor {
                     this.playerName = playerName;
                 } else {
                     target = Target.TOP;
+                }
+            }
+        }
+
+        private void extractPageNumber() {
+            if (target != Target.TOP) {
+                return;
+            }
+            for (String arg : argsToProcess) {
+                try {
+                    int page = Integer.parseInt(arg);
+                    if (page > 0) {
+                        this.pageNumber = page;
+                        argsToProcess = removeArg(arg);
+                        break;
+                    }
+                } catch (NumberFormatException ignored) {
                 }
             }
         }
