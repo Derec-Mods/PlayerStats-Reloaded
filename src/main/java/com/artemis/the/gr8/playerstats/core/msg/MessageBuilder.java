@@ -366,7 +366,8 @@ public final class MessageBuilder implements StatTextFormatter {
      */
     public @NotNull FormattingFunction formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest.Settings request) {
         final TextComponent title = getTopStatTitle(topStats.size(), request.getStatistic(), request.getSubStatEntryName());
-        final TextComponent list = getTopStatListComponent(topStats, request.getStatistic());
+        final TextComponent list = getTopStatListComponent(topStats, request.getStatistic(), request.getPageNumber(), request.getTopListSize());
+        final TextComponent pagination = getPaginationFooter(request);
         final boolean useEnters = config.useEnters(Target.TOP, false);
         final boolean useEntersForShared = config.useEnters(Target.TOP, true);
 
@@ -384,20 +385,26 @@ public final class MessageBuilder implements StatTextFormatter {
                             .append(space())
                             .append(componentFactory.shareButton(shareCode))
                         .append(list);
+                if (pagination != null) {
+                    topBuilder.append(newline()).append(pagination);
+                }
             }
             //if we're adding a "shared by" component
             else if (sender != null) {
                 if (useEntersForShared) {
                     topBuilder.append(newline());
                 }
+                TextComponent.Builder shareHover = text()
+                        .append(componentFactory.pluginPrefix())
+                        .append(space())
+                        .append(title)
+                        .append(list);
+                if (pagination != null) {
+                    shareHover.append(newline()).append(pagination);
+                }
                 topBuilder.append(title)
                             .append(space())
-                            .append(componentFactory.statResultInHoverText(text()
-                                    .append(componentFactory.pluginPrefix())
-                                    .append(space())
-                                    .append(title)
-                                    .append(list)
-                                    .build()))
+                            .append(componentFactory.statResultInHoverText(shareHover.build()))
                         .append(newline())
                         .append(componentFactory.sharedByMessage(
                                 getSharerNameComponent(sender)));
@@ -411,6 +418,9 @@ public final class MessageBuilder implements StatTextFormatter {
                         .append(space())
                         .append(title)
                         .append(list);
+                if (pagination != null) {
+                    topBuilder.append(newline()).append(pagination);
+                }
             }
             return topBuilder.build();
         };
@@ -475,11 +485,16 @@ public final class MessageBuilder implements StatTextFormatter {
     }
 
     private @NotNull TextComponent getTopStatListComponent(@NotNull LinkedHashMap<String, Integer> topStats, Statistic statistic) {
+        return getTopStatListComponent(topStats, statistic, 1, topStats.size());
+    }
+
+    private @NotNull TextComponent getTopStatListComponent(@NotNull LinkedHashMap<String, Integer> topStats, Statistic statistic, int pageNumber, int pageSize) {
         TextComponent.Builder topList = Component.text();
         Set<String> playerNames = topStats.keySet();
         boolean useDots = config.useDots();
 
-        int count = 0;
+        int rankOffset = (pageNumber > 1 && pageSize > 0) ? (pageNumber - 1) * pageSize : 0;
+        int count = rankOffset;
         for (String playerName : playerNames) {
             topList.append(newline());
             if (useDots) {
@@ -494,6 +509,48 @@ public final class MessageBuilder implements StatTextFormatter {
             }
         }
         return topList.build();
+    }
+
+    private @Nullable TextComponent getPaginationFooter(StatRequest.Settings request) {
+        if (request.getTotalPages() <= 1) {
+            return null;
+        }
+        int currentPage = request.getPageNumber();
+        int totalPages = request.getTotalPages();
+        String baseCommand = getBaseStatCommand(request);
+
+        TextComponent.Builder footer = Component.text();
+        footer.append(space());
+
+        if (currentPage > 1) {
+            footer.append(componentFactory.pagePrevButton(baseCommand + " " + (currentPage - 1)));
+        } else {
+            footer.append(componentFactory.pagePrevDisabled());
+        }
+
+        footer.append(space())
+                .append(componentFactory.pageNumber(currentPage))
+                .append(componentFactory.pageSeparator())
+                .append(componentFactory.pageNumber(totalPages))
+                .append(space());
+
+        if (currentPage < totalPages) {
+            footer.append(componentFactory.pageNextButton(baseCommand + " " + (currentPage + 1)));
+        } else {
+            footer.append(componentFactory.pageNextDisabled());
+        }
+
+        return footer.build();
+    }
+
+    private @NotNull String getBaseStatCommand(StatRequest.Settings request) {
+        StringBuilder sb = new StringBuilder("/stat ");
+        sb.append(request.getStatistic().name().toLowerCase(Locale.ENGLISH));
+        if (request.getSubStatEntryName() != null) {
+            sb.append(" ").append(request.getSubStatEntryName().toLowerCase(Locale.ENGLISH));
+        }
+        sb.append(" top");
+        return sb.toString();
     }
 
     private @NotNull TextComponent getTopStatLineComponent(int positionInTopList, String playerName, TextComponent statNumberComponent) {
