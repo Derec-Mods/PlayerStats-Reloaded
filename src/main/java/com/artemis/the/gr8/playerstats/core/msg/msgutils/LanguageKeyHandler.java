@@ -147,7 +147,9 @@ public final class LanguageKeyHandler extends YamlFileHandler {
     }
 
     public String convertLanguageKeyToDisplayName(String key) {
-        if (key == null) return null;
+        if (key == null || key.isEmpty()) {
+            return "";
+        }
         if (isStatKey(key)) {
             return getStatKeyTranslationFromFile(key);
         }

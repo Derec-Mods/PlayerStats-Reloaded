@@ -189,6 +189,40 @@ public class ComponentFactory {
                                 .color(INFO_MSG_ACCENT_MEDIUM))));
     }
 
+    public TextComponent pagePrevButton(String command) {
+        return text("<<<")
+                .color(FEEDBACK_MSG_ACCENT)
+                .clickEvent(ClickEvent.runCommand(command))
+                .hoverEvent(HoverEvent.showText(text("Previous page")
+                        .color(INFO_MSG_ACCENT_MEDIUM)));
+    }
+
+    public TextComponent pagePrevDisabled() {
+        return text("<<<")
+                .color(BRACKETS);
+    }
+
+    public TextComponent pageNextButton(String command) {
+        return text(">>>")
+                .color(FEEDBACK_MSG_ACCENT)
+                .clickEvent(ClickEvent.runCommand(command))
+                .hoverEvent(HoverEvent.showText(text("Next page")
+                        .color(INFO_MSG_ACCENT_MEDIUM)));
+    }
+
+    public TextComponent pageNextDisabled() {
+        return text(">>>")
+                .color(BRACKETS);
+    }
+
+    public TextComponent pageNumber(int pageNumber) {
+        return text(pageNumber).color(FEEDBACK_MSG);
+    }
+
+    public TextComponent pageSeparator() {
+        return text("/").color(BRACKETS);
+    }
+
     public TextComponent sharedByMessage(Component playerName) {
         return surroundWithBrackets(
                 text().append(

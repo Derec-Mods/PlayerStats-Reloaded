@@ -22,10 +22,18 @@ import java.util.stream.Collectors;
 
 final class BukkitProcessor extends RequestProcessor {
 
+    private static final long CACHE_EXPIRY_MILLIS = 30_000L;
+    private final ConcurrentHashMap<String, CachedStats> statsCache;
     private final OutputManager outputManager;
     private final ConfigHandler config;
     private final ShareManager shareManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
+
+    private record CachedStats(long timestamp, ConcurrentHashMap<String, Integer> stats) {
+        boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > CACHE_EXPIRY_MILLIS;
+        }
+    }
 
     public BukkitProcessor(OutputManager outputManager) {
         this.outputManager = outputManager;
@@ -33,6 +41,7 @@ final class BukkitProcessor extends RequestProcessor {
         config = ConfigHandler.getInstance();
         shareManager = ShareManager.getInstance();
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        statsCache = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -93,9 +102,20 @@ final class BukkitProcessor extends RequestProcessor {
     }
 
     private LinkedHashMap<String, Integer> getTopStats(StatRequest.Settings requestSettings) {
-        return getAllStatsAsync(requestSettings).entrySet().stream()
+        ConcurrentHashMap<String, Integer> allStats = getAllStatsAsync(requestSettings);
+        int pageSize = Math.max(1, requestSettings.getTopListSize());
+        int totalPlayers = allStats.size();
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalPlayers / pageSize));
+        requestSettings.setTotalPages(totalPages);
+
+        int requestedPage = requestSettings.getPageNumber();
+        int page = Math.min(Math.max(1, requestedPage), totalPages);
+        requestSettings.setPageNumber(page);
+
+        return allStats.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(requestSettings.getTopListSize())
+                .skip((long) (page - 1) * pageSize)
+                .limit(pageSize)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
@@ -118,6 +138,12 @@ final class BukkitProcessor extends RequestProcessor {
      * {@link OfflinePlayerHandler}).
      */
     private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest.Settings requestSettings) {
+        String cacheKey = getCacheKey(requestSettings);
+        CachedStats cached = statsCache.get(cacheKey);
+        if (cached != null && !cached.isExpired()) {
+            return cached.stats();
+        }
+
         long time = System.currentTimeMillis();
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
@@ -136,6 +162,13 @@ final class BukkitProcessor extends RequestProcessor {
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         MyLogger.logMediumLevelTask("Calculated all stats", time);
 
+        statsCache.put(cacheKey, new CachedStats(System.currentTimeMillis(), allStats));
         return allStats;
+    }
+
+    private String getCacheKey(StatRequest.Settings settings) {
+        String stat = settings.getStatistic().toString();
+        String sub = settings.getSubStatEntryName();
+        return sub == null ? stat : stat + ":" + sub;
     }
 }

@@ -89,6 +89,9 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
             else if (enumHandler.isSubStatEntry(previousArg)) {
                 tabSuggestions = statCommandTargets;
             }
+            else if (previousArg.equalsIgnoreCase("top")) {
+                tabSuggestions = List.of("1", "2", "3");
+            }
         }
         return getDynamicTabSuggestions(tabSuggestions, args[args.length-1]);
     }
