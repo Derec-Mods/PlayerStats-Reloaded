@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * This event is fired whenever PlayerStats calculates a statistic result.
  * This includes player stats, server stats, and top stats.
  * <p>
- * This event is called on the main thread after the statistic has been
+ * This event is called asynchronously after the statistic has been
  * calculated but before it is sent to the requesting player.
  * <p>
  * You can use this event to:
@@ -30,6 +30,11 @@ public class StatCalculatedEvent extends Event {
     private final StatResult<?> result;
 
     public StatCalculatedEvent(@NotNull CommandSender sender, @NotNull StatRequest<?> request, @NotNull StatResult<?> result) {
+        this(sender, request, result, true);
+    }
+
+    public StatCalculatedEvent(@NotNull CommandSender sender, @NotNull StatRequest<?> request, @NotNull StatResult<?> result, boolean isAsync) {
+        super(isAsync);
         this.sender = sender;
         this.request = request;
         this.result = result;
