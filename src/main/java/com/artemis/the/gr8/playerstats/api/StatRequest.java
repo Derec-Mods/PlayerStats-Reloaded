@@ -157,6 +157,10 @@ public abstract class StatRequest<T> {
       return this.pageNumber;
     }
 
+    public void setPageNumber(int pageNumber) {
+      this.pageNumber = pageNumber;
+    }
+
     public int getTotalPages() {
       return this.totalPages;
     }
