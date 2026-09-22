@@ -42,8 +42,13 @@ public abstract class StatRequest<T> {
   }
 
   protected void configureForTop(int topListSize) {
+    configureForTop(topListSize, 1);
+  }
+
+  protected void configureForTop(int topListSize, int pageNumber) {
     this.settings.target = Target.TOP;
     this.settings.topListSize = topListSize;
+    this.settings.pageNumber = Math.max(1, pageNumber);
   }
 
   protected void configureUntyped(@NotNull Statistic statistic) {
@@ -105,6 +110,8 @@ public abstract class StatRequest<T> {
     private String playerName;
     private Target target;
     private int topListSize;
+    private int pageNumber = 1;
+    private int totalPages = 1;
 
     private String subStatEntryName;
     private EntityType entity;
@@ -144,6 +151,18 @@ public abstract class StatRequest<T> {
 
     public int getTopListSize() {
       return this.topListSize;
+    }
+
+    public int getPageNumber() {
+      return this.pageNumber;
+    }
+
+    public int getTotalPages() {
+      return this.totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+      this.totalPages = totalPages;
     }
 
     public EntityType getEntity() {
