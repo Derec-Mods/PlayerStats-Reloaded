@@ -106,6 +106,11 @@ final class BukkitProcessor extends RequestProcessor {
         int pageSize = Math.max(1, requestSettings.getTopListSize());
         int totalPlayers = allStats.size();
         int totalPages = Math.max(1, (int) Math.ceil((double) totalPlayers / pageSize));
+
+        int maxPages = config.getTopListMaxPages();
+        if (maxPages > 0) {
+            totalPages = Math.min(totalPages, maxPages);
+        }
         requestSettings.setTotalPages(totalPages);
 
         int requestedPage = requestSettings.getPageNumber();

@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.commands;
 
+import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.Statistic;
@@ -17,6 +18,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final EnumHandler enumHandler;
+    private final ConfigHandler config;
 
     private List<String> statCommandTargets;
     private List<String> excludeCommandOptions;
@@ -24,6 +26,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     public TabCompleter() {
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
         enumHandler = EnumHandler.getInstance();
+        config = ConfigHandler.getInstance();
         prepareLists();
     }
 
@@ -90,7 +93,11 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 tabSuggestions = statCommandTargets;
             }
             else if (previousArg.equalsIgnoreCase("top")) {
-                tabSuggestions = List.of("1", "2", "3");
+                int maxPages = config.getTopListMaxPages();
+                int count = (maxPages > 0) ? Math.min(maxPages, 5) : 5;
+                tabSuggestions = java.util.stream.IntStream.rangeClosed(1, count)
+                        .mapToObj(String::valueOf)
+                        .toList();
             }
         }
         return getDynamicTabSuggestions(tabSuggestions, args[args.length-1]);
