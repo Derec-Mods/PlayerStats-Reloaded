@@ -244,6 +244,8 @@ public final class EnumHandler {
 
         statAliases = new HashMap<>();
         statAliases.put("place_block", Statistic.USE_ITEM);
+        statAliases.put("eat", Statistic.USE_ITEM);
+        statAliases.put("drink", Statistic.USE_ITEM);
 
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
