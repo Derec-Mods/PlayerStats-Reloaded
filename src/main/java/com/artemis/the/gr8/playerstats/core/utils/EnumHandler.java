@@ -249,6 +249,8 @@ public final class EnumHandler {
         statAliases.put("pvp_kills", Statistic.PLAYER_KILLS);
         statAliases.put("playtime", Statistic.PLAY_ONE_MINUTE);
         statAliases.put("elytra", Statistic.AVIATE_ONE_CM);
+        statAliases.put("trades", Statistic.TRADED_WITH_VILLAGER);
+        statAliases.put("trade", Statistic.TRADED_WITH_VILLAGER);
 
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
