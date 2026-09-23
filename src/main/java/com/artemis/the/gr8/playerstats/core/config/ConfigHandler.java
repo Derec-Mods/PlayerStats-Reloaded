@@ -21,7 +21,7 @@ public final class ConfigHandler extends YamlFileHandler {
         super("config.yml");
         config = super.getFileConfiguration();
 
-        configVersion = 8;
+        configVersion = 9;
         checkAndUpdateConfigVersion();
         MyLogger.setDebugLevel(getDebugLevel());
     }
@@ -58,7 +58,8 @@ public final class ConfigHandler extends YamlFileHandler {
      * <br>PlayerStats 1.5: "config-version" is 5.
      * <br>PlayerStats 1.6 & 1.7: "config-version" is 6.
      * <br>PlayerStats 2.1, 2.2 & 2.3: "config-version" is 7.
-     * <br>PlayerStats 2.4 and up: "config-version" is 8.
+     * <br>PlayerStats 2.4 - 2.7.0: "config-version" is 8.
+     * <br>PlayerStats 2.7.1 and up: "config-version" is 9.
      */
     private void checkAndUpdateConfigVersion() {
         if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
