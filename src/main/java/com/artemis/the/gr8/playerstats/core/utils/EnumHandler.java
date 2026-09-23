@@ -246,6 +246,8 @@ public final class EnumHandler {
         statAliases.put("place_block", Statistic.USE_ITEM);
         statAliases.put("eat", Statistic.USE_ITEM);
         statAliases.put("drink", Statistic.USE_ITEM);
+        statAliases.put("pvp_kills", Statistic.PLAYER_KILLS);
+        statAliases.put("playtime", Statistic.PLAY_ONE_MINUTE);
 
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
