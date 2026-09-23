@@ -6,10 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +28,7 @@ public final class EnumHandler {
     private static List<String> entitiesThatCanDie;
     private static List<String> statNames;
     private static List<String> subStatNames;
+    private static Map<String, Statistic> statAliases;
 
     private EnumHandler() {
         prepareLists();
@@ -139,6 +137,10 @@ public final class EnumHandler {
      * @return the Statistic enum constant, or null
      */
     public @Nullable Statistic getStatEnum(@NotNull String statName)  {
+        String lower = statName.toLowerCase(Locale.ENGLISH);
+        if (statAliases != null && statAliases.containsKey(lower)) {
+            return statAliases.get(lower);
+        }
         try {
             return Statistic.valueOf(statName.toUpperCase(Locale.ENGLISH));
         }
@@ -154,7 +156,8 @@ public final class EnumHandler {
      * @return true if this String is a valid Statistic
      */
     public boolean isStatistic(@NotNull String statName) {
-        return statNames.contains(statName.toLowerCase(Locale.ENGLISH));
+        String lower = statName.toLowerCase(Locale.ENGLISH);
+        return statNames.contains(lower) || (statAliases != null && statAliases.containsKey(lower));
     }
 
     /**
@@ -239,9 +242,14 @@ public final class EnumHandler {
                 .distinct()
                 .collect(Collectors.toList());
 
+        statAliases = new HashMap<>();
+        statAliases.put("place_block", Statistic.USE_ITEM);
+
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
                 .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
+        statNames.addAll(statAliases.keySet());
+        Collections.sort(statNames);
     }
 }
