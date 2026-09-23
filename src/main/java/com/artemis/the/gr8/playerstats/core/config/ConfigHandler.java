@@ -219,6 +219,15 @@ public final class ConfigHandler extends YamlFileHandler {
     }
 
     /**
+     * The maximum number of pages you can navigate to in a top-stat-list,
+     * or -1 for unlimited.
+     * @return the config setting (default: 5)
+     */
+    public int getTopListMaxPages() {
+        return config.getInt("top-list-max-pages", config.getInt("max-pages", 5));
+    }
+
+    /**
      * The title that a top-statistic should start with.
      * @return a String that represents the title for a top statistic
      * (default: "Top")
