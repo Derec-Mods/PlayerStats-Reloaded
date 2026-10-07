@@ -788,12 +788,13 @@ public final class MessageBuilder implements StatTextFormatter {
     }
 
     private int getNumberOfDotsToAlign(String displayText) {
+        int alignWidth = config.getTopListAlignWidth();
         if (componentFactory.isConsoleFactory()) {
-            return FontUtils.getNumberOfDotsToAlignForConsole(displayText);
+            return FontUtils.getNumberOfDotsToAlignForConsole(displayText, alignWidth);
         } else if (config.playerNameIsBold()) {
-            return FontUtils.getNumberOfDotsToAlignForBoldText(displayText);
+            return FontUtils.getNumberOfDotsToAlignForBoldText(displayText, alignWidth);
         } else {
-            return FontUtils.getNumberOfDotsToAlign(displayText);
+            return FontUtils.getNumberOfDotsToAlign(displayText, alignWidth);
         }
     }
 

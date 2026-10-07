@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 8
+config-version: 9
 
 
 #                                # ------------------------------- #                                     #
@@ -68,8 +68,15 @@ use-enters:
 # Align the stat-numbers in the top list with dots
 use-dots: true
 
+# The pixel width used to align the dots in the top list (Minecraft chat default: 130)
+# Lower this value if you want a narrower scoreboard width when using placeholders
+top-list-align-width: 130
+
 # The maximum number of results displayed in the top list
 top-list-max-size: 10
+
+# Set the max pages you can navigate to or -1 for unlimited
+top-list-max-pages: 5
 
 # The title above the top list (this will become 'Top 10 animals bred', for example)
 top-list-title: 'Top'
