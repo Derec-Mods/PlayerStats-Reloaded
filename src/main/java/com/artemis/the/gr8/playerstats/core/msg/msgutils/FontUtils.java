@@ -8,18 +8,32 @@ import org.bukkit.map.MinecraftFont;
  */
 public final class FontUtils {
 
+    public static final int DEFAULT_ALIGN_WIDTH = 130;
+
     private FontUtils() {
     }
 
     public static int getNumberOfDotsToAlign(String displayText) {
-        return (int) Math.round((130.0 - MinecraftFont.Font.getWidth(displayText))/2);
+        return getNumberOfDotsToAlign(displayText, DEFAULT_ALIGN_WIDTH);
+    }
+
+    public static int getNumberOfDotsToAlign(String displayText, int alignWidth) {
+        return (int) Math.round((alignWidth - MinecraftFont.Font.getWidth(displayText))/2.0);
     }
 
     public static int getNumberOfDotsToAlignForConsole(String displayText) {
-        return (int) Math.round((130.0 - MinecraftFont.Font.getWidth(displayText))/6) + 7;
+        return getNumberOfDotsToAlignForConsole(displayText, DEFAULT_ALIGN_WIDTH);
+    }
+
+    public static int getNumberOfDotsToAlignForConsole(String displayText, int alignWidth) {
+        return (int) Math.round((alignWidth - MinecraftFont.Font.getWidth(displayText))/6.0) + 7;
     }
 
     public static int getNumberOfDotsToAlignForBoldText(String displayText) {
-        return (int) Math.round((130.0 - (MinecraftFont.Font.getWidth(displayText) * 1.5))/2);
+        return getNumberOfDotsToAlignForBoldText(displayText, DEFAULT_ALIGN_WIDTH);
+    }
+
+    public static int getNumberOfDotsToAlignForBoldText(String displayText, int alignWidth) {
+        return (int) Math.round((alignWidth - (MinecraftFont.Font.getWidth(displayText) * 1.5))/2.0);
     }
 }
