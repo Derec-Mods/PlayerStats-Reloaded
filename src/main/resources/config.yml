@@ -68,6 +68,10 @@ use-enters:
 # Align the stat-numbers in the top list with dots
 use-dots: true
 
+# The pixel width used to align the dots in the top list (Minecraft chat default: 130)
+# Lower this value if you want a narrower scoreboard width when using placeholders
+top-list-align-width: 130
+
 # The maximum number of results displayed in the top list
 top-list-max-size: 10
 

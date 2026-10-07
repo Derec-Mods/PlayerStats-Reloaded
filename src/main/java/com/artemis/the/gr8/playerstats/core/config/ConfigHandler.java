@@ -212,6 +212,14 @@ public final class ConfigHandler extends YamlFileHandler {
     }
 
     /**
+     * The target pixel width used to align dots in a top-stat-result.
+     * @return the config setting (default: 130)
+     */
+    public int getTopListAlignWidth() {
+        return config.getInt("top-list-align-width", 130);
+    }
+
+    /**
      * The maximum size for the top-stat-list.
      * @return the config setting (default: 10)
      */
