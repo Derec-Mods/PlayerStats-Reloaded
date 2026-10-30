@@ -141,7 +141,7 @@ public final class OfflinePlayerHandler extends YamlFileHandler {
             return Bukkit.getOfflinePlayer(includedPlayerUUIDs.get(playerName));
         }
         else {
-            MyLogger.logWarning("Cannot calculate statistics for player-name: " + playerName +
+            MyLogger.logMediumLevelMsg("Cannot calculate statistics for player-name: " + playerName +
                     "! Double-check if the name is spelled correctly (including capital letters), " +
                     "or if any of your config settings exclude them");
             throw new IllegalArgumentException("PlayerStats does not know a player by this name");

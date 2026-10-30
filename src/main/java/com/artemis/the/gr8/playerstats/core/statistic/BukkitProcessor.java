@@ -114,12 +114,23 @@ class BukkitProcessor extends RequestProcessor {
     }
 
     private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
+        String playerName = requestSettings.getPlayerName();
+        if (playerName == null) {
+            return 0;
+        }
         OfflinePlayer player;
-        if (offlinePlayerHandler.isExcludedPlayer(requestSettings.getPlayerName()) &&
+        if (offlinePlayerHandler.isExcludedPlayer(playerName) &&
                 config.allowPlayerLookupsForExcludedPlayers()) {
-            player = offlinePlayerHandler.getExcludedOfflinePlayer(requestSettings.getPlayerName());
+            player = offlinePlayerHandler.getExcludedOfflinePlayer(playerName);
         } else {
-            player = offlinePlayerHandler.getIncludedOfflinePlayer(requestSettings.getPlayerName());
+            try {
+                player = offlinePlayerHandler.getIncludedOfflinePlayer(playerName);
+            } catch (IllegalArgumentException e) {
+                return 0;
+            }
+        }
+        if (player == null) {
+            return 0;
         }
         if (requestSettings.isWildcard()) {
             int total = 0;
