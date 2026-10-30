@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 
-public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Integer>> implements RequestGenerator<LinkedHashMap<String, Integer>> {
+public class TopStatRequest extends StatRequest<LinkedHashMap<String, Integer>> implements RequestGenerator<LinkedHashMap<String, Integer>> {
 
     public TopStatRequest(int topListSize) {
         this(Bukkit.getConsoleSender(), topListSize, 1);
@@ -50,6 +50,12 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
     @Override
     public StatRequest<LinkedHashMap<String, Integer>> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         super.configureEntityType(statistic, entityType);
+        return this;
+    }
+
+    @Override
+    public StatRequest<LinkedHashMap<String, Integer>> wildcard(@NotNull Statistic statistic) {
+        super.configureWildcard(statistic);
         return this;
     }
 }

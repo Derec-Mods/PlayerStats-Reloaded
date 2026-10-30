@@ -41,4 +41,6 @@ public interface RequestGenerator<T> {
      * @return a {@link StatRequest}
      * @throws IllegalArgumentException if <code>statistic</code> is not of Type.Entity*/
     StatRequest<T> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException;
+
+    StatRequest<T> wildcard(@NotNull Statistic statistic) throws IllegalArgumentException;
 }

@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.utils;
 
+import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * of all aforementioned enums, check if something is a valid enum constant,
  * and turn a name into its corresponding enum constant.
  */
-public final class EnumHandler {
+public class EnumHandler {
 
     private static volatile EnumHandler instance;
 
@@ -29,6 +30,9 @@ public final class EnumHandler {
     private static List<String> statNames;
     private static List<String> subStatNames;
     private static Map<String, Statistic> statAliases;
+    private static Material[] blockMaterials;
+    private static Material[] itemMaterials;
+    private static EntityType[] livingEntities;
 
     private EnumHandler() {
         prepareLists();
@@ -84,6 +88,18 @@ public final class EnumHandler {
      */
     public List<String> getAllStatNames() {
         return statNames;
+    }
+
+    public static Material[] getBlockMaterials() {
+        return blockMaterials;
+    }
+
+    public static Material[] getItemMaterials() {
+        return itemMaterials;
+    }
+
+    public static EntityType[] getLivingEntities() {
+        return livingEntities;
     }
 
     /**
@@ -181,6 +197,9 @@ public final class EnumHandler {
      * of Type.Untyped
      */
     public boolean isSubStatEntry(@NotNull String statName) {
+        if (statName.equals("*")) {
+            return ConfigHandler.getInstance().enableAllStatsLookup();
+        }
         return subStatNames.contains(statName.toLowerCase(Locale.ENGLISH));
     }
 
@@ -203,8 +222,19 @@ public final class EnumHandler {
     }
 
     private void prepareLists() {
-        blockNames = Arrays.stream(Material.values())
+        blockMaterials = Arrays.stream(Material.values())
                 .filter(Material::isBlock)
+                .toArray(Material[]::new);
+
+        itemMaterials = Arrays.stream(Material.values())
+                .filter(Material::isItem)
+                .toArray(Material[]::new);
+
+        livingEntities = Arrays.stream(EntityType.values())
+                .filter(EntityType::isAlive)
+                .toArray(EntityType[]::new);
+
+        blockNames = Arrays.stream(blockMaterials)
                 .map(Material::toString)
                 .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());

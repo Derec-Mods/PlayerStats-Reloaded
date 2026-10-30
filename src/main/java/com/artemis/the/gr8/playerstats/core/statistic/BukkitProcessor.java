@@ -7,12 +7,15 @@ import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
 import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
+import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -111,12 +114,44 @@ class BukkitProcessor extends RequestProcessor {
     }
 
     private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
+        String playerName = requestSettings.getPlayerName();
+        if (playerName == null) {
+            return 0;
+        }
         OfflinePlayer player;
-        if (offlinePlayerHandler.isExcludedPlayer(requestSettings.getPlayerName()) &&
+        if (offlinePlayerHandler.isExcludedPlayer(playerName) &&
                 config.allowPlayerLookupsForExcludedPlayers()) {
-            player = offlinePlayerHandler.getExcludedOfflinePlayer(requestSettings.getPlayerName());
+            player = offlinePlayerHandler.getExcludedOfflinePlayer(playerName);
         } else {
-            player = offlinePlayerHandler.getIncludedOfflinePlayer(requestSettings.getPlayerName());
+            try {
+                player = offlinePlayerHandler.getIncludedOfflinePlayer(playerName);
+            } catch (IllegalArgumentException e) {
+                return 0;
+            }
+        }
+        if (player == null) {
+            return 0;
+        }
+        if (requestSettings.isWildcard()) {
+            int total = 0;
+            switch (requestSettings.getStatistic().getType()) {
+                case BLOCK -> {
+                    for (Material mat : EnumHandler.getBlockMaterials()) {
+                        total += player.getStatistic(requestSettings.getStatistic(), mat);
+                    }
+                }
+                case ITEM -> {
+                    for (Material mat : EnumHandler.getItemMaterials()) {
+                        total += player.getStatistic(requestSettings.getStatistic(), mat);
+                    }
+                }
+                case ENTITY -> {
+                    for (EntityType entity : EnumHandler.getLivingEntities()) {
+                        total += player.getStatistic(requestSettings.getStatistic(), entity);
+                    }
+                }
+            }
+            return total;
         }
         return switch (requestSettings.getStatistic().getType()) {
             case UNTYPED -> player.getStatistic(requestSettings.getStatistic());

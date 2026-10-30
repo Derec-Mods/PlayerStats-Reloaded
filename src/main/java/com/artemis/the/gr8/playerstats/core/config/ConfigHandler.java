@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 /** Handles all PlayerStats' config-settings. */
-public final class ConfigHandler extends YamlFileHandler {
+public class ConfigHandler extends YamlFileHandler {
 
     private static volatile ConfigHandler instance;
     private final int configVersion;
@@ -142,6 +142,10 @@ public final class ConfigHandler extends YamlFileHandler {
      */
     public boolean allowPlayerLookupsForExcludedPlayers() {
         return config.getBoolean("allow-player-lookups-for-excluded-players", true);
+    }
+
+    public boolean enableAllStatsLookup() {
+        return config.getBoolean("enable-all-stats-lookup", false);
     }
 
     /**

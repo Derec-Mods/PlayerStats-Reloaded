@@ -82,9 +82,21 @@ public abstract class StatRequest<T> {
     this.settings.subStatEntryName = entityType.toString();
   }
 
+  protected void configureWildcard(@NotNull Statistic statistic) throws IllegalArgumentException {
+    if (statistic.getType() == Statistic.Type.UNTYPED) {
+      throw new IllegalArgumentException("This statistic is of Type.Untyped");
+    }
+    this.settings.statistic = statistic;
+    this.settings.subStatEntryName = "*";
+    this.settings.isWildcard = true;
+  }
+
   protected boolean hasMatchingSubStat() {
     if (settings.statistic == null) {
       return false;
+    }
+    if (settings.isWildcard()) {
+      return true;
     }
 
     switch (settings.statistic.getType()) {
@@ -103,8 +115,7 @@ public abstract class StatRequest<T> {
     }
   }
 
-
-  public static final class Settings {
+  public static class Settings {
     private final CommandSender sender;
     private Statistic statistic;
     private String playerName;
@@ -112,6 +123,7 @@ public abstract class StatRequest<T> {
     private int topListSize;
     private int pageNumber = 1;
     private int totalPages = 1;
+    private boolean isWildcard;
 
     private String subStatEntryName;
     private EntityType entity;
@@ -179,6 +191,10 @@ public abstract class StatRequest<T> {
 
     public Material getItem() {
       return item;
+    }
+
+    public boolean isWildcard() {
+      return isWildcard;
     }
   }
 }

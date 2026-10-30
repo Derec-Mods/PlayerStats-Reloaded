@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-public final class ServerStatRequest extends StatRequest<Long> implements RequestGenerator<Long> {
+public class ServerStatRequest extends StatRequest<Long> implements RequestGenerator<Long> {
 
 
     public ServerStatRequest() {
@@ -41,6 +41,12 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
     @Override
     public StatRequest<Long> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         super.configureEntityType(statistic, entityType);
+        return this;
+    }
+
+    @Override
+    public StatRequest<Long> wildcard(@NotNull Statistic statistic) {
+        super.configureWildcard(statistic);
         return this;
     }
 }

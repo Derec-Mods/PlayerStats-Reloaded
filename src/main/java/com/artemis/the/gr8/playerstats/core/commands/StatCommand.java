@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class StatCommand implements CommandExecutor {
+public class StatCommand implements CommandExecutor {
 
     private static final Pattern pattern = Pattern.compile("top|server|me|player");
 
@@ -124,7 +124,7 @@ public final class StatCommand implements CommandExecutor {
         }
     }
 
-    private final class ArgProcessor {
+    private class ArgProcessor {
 
         private final CommandSender sender;
         private String[] argsToProcess;
@@ -159,6 +159,11 @@ public final class StatCommand implements CommandExecutor {
                 case SERVER -> new ServerStatRequest(sender);
                 case TOP -> new TopStatRequest(sender, config.getTopListMaxSize(), pageNumber);
             };
+
+            if ("*".equals(subStatName)) {
+                request = requestGenerator.wildcard(statistic);
+                return;
+            }
 
             switch (statistic.getType()) {
                 case UNTYPED -> request = requestGenerator.untyped(statistic);

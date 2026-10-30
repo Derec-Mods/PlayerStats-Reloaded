@@ -400,14 +400,16 @@ public class ComponentFactory {
      */
     private TextComponent subStatNameTranslatable(@Nullable String subStatKey, Target target) {
         if (subStatKey != null) {
-            return getComponentBuilder(null,
+            TextComponent.Builder builder = getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameDecoration(target, false)),
                     getStyleFromString(config.getSubStatNameDecoration(target, true)))
-                    .append(text("("))
-                    .append(translatable()
-                            .key(subStatKey))
-                    .append(text(")"))
-                    .build();
+                    .append(text("("));
+            if (subStatKey.equals("*")) {
+                builder.append(text("*"));
+            } else {
+                builder.append(translatable().key(subStatKey));
+            }
+            return builder.append(text(")")).build();
         }
         return Component.empty();
     }

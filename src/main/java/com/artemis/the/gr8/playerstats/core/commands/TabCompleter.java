@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public final class TabCompleter implements org.bukkit.command.TabCompleter {
+public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final EnumHandler enumHandler;
@@ -123,24 +123,18 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     }
 
     private List<String> suggestionsAfterFirstStatCommandArg(@NotNull Statistic stat) {
-        switch (stat.getType()) {
-            case BLOCK -> {
-                return enumHandler.getAllBlockNames();
-            }
-            case ITEM -> {
-                if (stat == Statistic.BREAK_ITEM) {
-                    return enumHandler.getAllItemsThatCanBreak();
-                } else {
-                    return enumHandler.getAllItemNames();
-                }
-            }
-            case ENTITY -> {
-                return enumHandler.getAllEntitiesThatCanDie();
-            }
-            default -> {
-                return statCommandTargets;
-            }
+        List<String> suggestions = switch (stat.getType()) {
+            case BLOCK -> new ArrayList<>(enumHandler.getAllBlockNames());
+            case ITEM -> (stat == Statistic.BREAK_ITEM) ?
+                    new ArrayList<>(enumHandler.getAllItemsThatCanBreak()) :
+                    new ArrayList<>(enumHandler.getAllItemNames());
+            case ENTITY -> new ArrayList<>(enumHandler.getAllEntitiesThatCanDie());
+            default -> statCommandTargets;
+        };
+        if (config.enableAllStatsLookup() && stat.getType() != Statistic.Type.UNTYPED) {
+            suggestions.add("*");
         }
+        return suggestions;
     }
 
     private void prepareLists() {
