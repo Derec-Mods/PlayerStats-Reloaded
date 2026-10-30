@@ -39,7 +39,8 @@ number-of-days-since-last-joined: 0
 allow-player-lookups-for-excluded-players: true
 
 # Experimental option to calculate totals across all blocks, items, or entities using *
-enable-wildcard-stats: false
+# When enabled, players can type * instead of a specific block/item/entity (e.g. /stat mine_block * top)
+enable-all-stats-lookup: false
 
 
 #                                # ------------------------------- #                                     #

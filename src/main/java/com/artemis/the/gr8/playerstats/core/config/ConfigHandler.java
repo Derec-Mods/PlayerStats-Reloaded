@@ -144,8 +144,8 @@ public class ConfigHandler extends YamlFileHandler {
         return config.getBoolean("allow-player-lookups-for-excluded-players", true);
     }
 
-    public boolean enableWildcardStats() {
-        return config.getBoolean("enable-wildcard-stats", false);
+    public boolean enableAllStatsLookup() {
+        return config.getBoolean("enable-all-stats-lookup", false);
     }
 
     /**

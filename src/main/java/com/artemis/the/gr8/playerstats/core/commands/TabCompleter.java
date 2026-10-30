@@ -131,7 +131,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             case ENTITY -> new ArrayList<>(enumHandler.getAllEntitiesThatCanDie());
             default -> statCommandTargets;
         };
-        if (config.enableWildcardStats() && stat.getType() != Statistic.Type.UNTYPED) {
+        if (config.enableAllStatsLookup() && stat.getType() != Statistic.Type.UNTYPED) {
             suggestions.add("*");
         }
         return suggestions;

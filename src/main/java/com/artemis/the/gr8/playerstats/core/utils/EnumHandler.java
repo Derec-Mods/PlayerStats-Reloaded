@@ -198,7 +198,7 @@ public class EnumHandler {
      */
     public boolean isSubStatEntry(@NotNull String statName) {
         if (statName.equals("*")) {
-            return ConfigHandler.getInstance().enableWildcardStats();
+            return ConfigHandler.getInstance().enableAllStatsLookup();
         }
         return subStatNames.contains(statName.toLowerCase(Locale.ENGLISH));
     }
