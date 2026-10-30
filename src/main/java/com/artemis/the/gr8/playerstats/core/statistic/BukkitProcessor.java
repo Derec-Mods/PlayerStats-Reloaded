@@ -20,18 +20,51 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-final class BukkitProcessor extends RequestProcessor {
+class BukkitProcessor extends RequestProcessor {
 
-    private static final long CACHE_EXPIRY_MILLIS = 30_000L;
+    private static final long CACHE_EXPIRY_MILLIS = 300_000L;
     private final ConcurrentHashMap<String, CachedStats> statsCache;
     private final OutputManager outputManager;
     private final ConfigHandler config;
     private final ShareManager shareManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    private record CachedStats(long timestamp, ConcurrentHashMap<String, Integer> stats) {
+    private static class CachedStats {
+        private volatile long timestamp;
+        private final ConcurrentHashMap<String, Integer> stats;
+        private volatile List<Map.Entry<String, Integer>> sortedEntries;
+
+        CachedStats(long timestamp, ConcurrentHashMap<String, Integer> stats) {
+            this.timestamp = timestamp;
+            this.stats = stats;
+        }
+
         boolean isExpired() {
             return System.currentTimeMillis() - timestamp > CACHE_EXPIRY_MILLIS;
+        }
+
+        void touch() {
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        ConcurrentHashMap<String, Integer> stats() {
+            return stats;
+        }
+
+        List<Map.Entry<String, Integer>> getSortedEntries() {
+            List<Map.Entry<String, Integer>> local = sortedEntries;
+            if (local == null) {
+                synchronized (this) {
+                    local = sortedEntries;
+                    if (local == null) {
+                        local = stats.entrySet().stream()
+                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                                .toList();
+                        sortedEntries = local;
+                    }
+                }
+            }
+            return local;
         }
     }
 
@@ -102,9 +135,12 @@ final class BukkitProcessor extends RequestProcessor {
     }
 
     private LinkedHashMap<String, Integer> getTopStats(StatRequest.Settings requestSettings) {
-        ConcurrentHashMap<String, Integer> allStats = getAllStatsAsync(requestSettings);
+        CachedStats cached = getCachedStats(requestSettings);
+        cached.touch();
+        List<Map.Entry<String, Integer>> sorted = cached.getSortedEntries();
+
         int pageSize = Math.max(1, requestSettings.getTopListSize());
-        int totalPlayers = allStats.size();
+        int totalPlayers = sorted.size();
         int totalPages = Math.max(1, (int) Math.ceil((double) totalPlayers / pageSize));
 
         int maxPages = config.getTopListMaxPages();
@@ -117,11 +153,15 @@ final class BukkitProcessor extends RequestProcessor {
         int page = Math.min(Math.max(1, requestedPage), totalPages);
         requestSettings.setPageNumber(page);
 
-        return allStats.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .skip((long) (page - 1) * pageSize)
-                .limit(pageSize)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        int fromIndex = (page - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalPlayers);
+
+        LinkedHashMap<String, Integer> result = new LinkedHashMap<>(pageSize);
+        for (int i = fromIndex; i < toIndex; i++) {
+            Map.Entry<String, Integer> entry = sorted.get(i);
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 
     private TextComponent processFunction(CommandSender sender, FormattingFunction function) {
@@ -138,15 +178,15 @@ final class BukkitProcessor extends RequestProcessor {
                 shareManager.senderHasPermission(sender);
     }
 
-    /**
-     * Invokes a bunch of worker pool threads to get the statistics for all players that are stored in the
-     * {@link OfflinePlayerHandler}).
-     */
     private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest.Settings requestSettings) {
+        return getCachedStats(requestSettings).stats();
+    }
+
+    private @NotNull CachedStats getCachedStats(StatRequest.Settings requestSettings) {
         String cacheKey = getCacheKey(requestSettings);
         CachedStats cached = statsCache.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
-            return cached.stats();
+            return cached;
         }
 
         long time = System.currentTimeMillis();
@@ -167,8 +207,9 @@ final class BukkitProcessor extends RequestProcessor {
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         MyLogger.logMediumLevelTask("Calculated all stats", time);
 
-        statsCache.put(cacheKey, new CachedStats(System.currentTimeMillis(), allStats));
-        return allStats;
+        CachedStats newCache = new CachedStats(System.currentTimeMillis(), allStats);
+        statsCache.put(cacheKey, newCache);
+        return newCache;
     }
 
     private String getCacheKey(StatRequest.Settings settings) {
