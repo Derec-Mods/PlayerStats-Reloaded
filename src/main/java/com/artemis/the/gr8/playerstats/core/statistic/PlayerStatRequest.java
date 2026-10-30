@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-public final class PlayerStatRequest extends StatRequest<Integer> implements RequestGenerator<Integer> {
+public class PlayerStatRequest extends StatRequest<Integer> implements RequestGenerator<Integer> {
 
     public PlayerStatRequest(String playerName) {
         this(Bukkit.getConsoleSender(), playerName);
@@ -59,6 +59,12 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
     @Override
     public StatRequest<Integer> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         super.configureEntityType(statistic, entityType);
+        return this;
+    }
+
+    @Override
+    public StatRequest<Integer> wildcard(@NotNull Statistic statistic) {
+        super.configureWildcard(statistic);
         return this;
     }
 }

@@ -38,6 +38,9 @@ number-of-days-since-last-joined: 0
 # the /stat player command
 allow-player-lookups-for-excluded-players: true
 
+# Experimental option to calculate totals across all blocks, items, or entities using *
+enable-wildcard-stats: false
+
 
 #                                # ------------------------------- #                                     #
 #                                #        Format & Display         #                                     #

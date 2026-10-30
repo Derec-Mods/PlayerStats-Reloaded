@@ -1,10 +1,13 @@
 package com.artemis.the.gr8.playerstats.core.multithreading;
 
 import com.artemis.the.gr8.playerstats.api.StatRequest;
+import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.EntityType;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +16,7 @@ import java.util.concurrent.RecursiveTask;
 /**
  * The action that is executed when a stat-command is triggered.
  */
-final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
+class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
 
     private static int threshold;
     private final ImmutableList<String> playerNames;
@@ -66,11 +69,31 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
                 MyLogger.actionRunning(Thread.currentThread().getName());
                 OfflinePlayer player = offlinePlayerHandler.getIncludedOfflinePlayer(playerName);
                 int statistic = 0;
-                switch (requestSettings.getStatistic().getType()) {
-                    case UNTYPED -> statistic = player.getStatistic(requestSettings.getStatistic());
-                    case ENTITY -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
-                    case BLOCK -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
-                    case ITEM -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
+                if (requestSettings.isWildcard()) {
+                    switch (requestSettings.getStatistic().getType()) {
+                        case BLOCK -> {
+                            for (Material mat : EnumHandler.getBlockMaterials()) {
+                                statistic += player.getStatistic(requestSettings.getStatistic(), mat);
+                            }
+                        }
+                        case ITEM -> {
+                            for (Material mat : EnumHandler.getItemMaterials()) {
+                                statistic += player.getStatistic(requestSettings.getStatistic(), mat);
+                            }
+                        }
+                        case ENTITY -> {
+                            for (EntityType entity : EnumHandler.getLivingEntities()) {
+                                statistic += player.getStatistic(requestSettings.getStatistic(), entity);
+                            }
+                        }
+                    }
+                } else {
+                    switch (requestSettings.getStatistic().getType()) {
+                        case UNTYPED -> statistic = player.getStatistic(requestSettings.getStatistic());
+                        case ENTITY -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
+                        case BLOCK -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
+                        case ITEM -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
+                    }
                 }
                 if (statistic > 0) {
                     allStats.put(playerName, statistic);
