@@ -1,0 +1,76 @@
+package com.artemis.the.gr8.playerstats.expansion.datamodels;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Originally authored by Artemis_the_gr8 (https://github.com/Artemis-the-gr8/PlayerStatsExpansion)
+ * Adapted and integrated directly into PlayerStats Reloaded.
+ */
+public class LinkedStatResult {
+
+    private LinkedHashMap<String, Integer> statResult;
+
+    public LinkedStatResult(LinkedHashMap<String, Integer> linkedStats) {
+        statResult = linkedStats;
+    }
+
+    public void insertValueIntoExistingOrder(String playerName, Integer statNumber) {
+        statResult.put(playerName, statNumber);
+        List<String> playerNames = statResult.keySet().stream().toList();
+        int index = playerNames.indexOf(playerName);
+        if (index == 0) {
+            return;
+        }
+
+        int higherValue = statResult.get(playerNames.get(index - 1));
+
+        if (statNumber <= higherValue) {
+            return;
+        }
+
+        statResult = statResult.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    public Integer get(String key) {
+        if (statResult.containsKey(key)) {
+            return statResult.get(key);
+        }
+        return 0;
+    }
+
+    public Integer getValueAtIndex(int index) {
+        String[] playerNames = statResult.keySet().toArray(new String[0]);
+        if (playerNames.length <= index) {
+            return 0;
+        }
+        return statResult.get(playerNames[index]);
+    }
+
+    public @Nullable String getKeyAtIndex(int index) {
+        String[] playerNames = statResult.keySet().toArray(new String[0]);
+        if (playerNames.length <= index) {
+            return null;
+        }
+        return playerNames[index];
+    }
+
+    public Integer getIndex(String key) {
+        if (statResult.containsKey(key)) {
+            return statResult.keySet().stream().toList().indexOf(key);
+        }
+        return 0;
+    }
+
+    public long getSumOfAllValues() {
+        List<Integer> numbers = statResult
+                .values()
+                .parallelStream()
+                .toList();
+        return numbers.parallelStream().mapToLong(Integer::longValue).sum();
+    }
+}
