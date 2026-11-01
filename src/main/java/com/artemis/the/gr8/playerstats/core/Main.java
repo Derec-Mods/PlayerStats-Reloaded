@@ -39,6 +39,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     private static List<Reloadable> reloadables;
     private static List<Closable> closables;
+    private static PlaceholderExpansion placeholderExpansion;
 
     @Override
     public void onEnable() {
@@ -47,6 +48,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
         initializeMainClassesInOrder();
         registerCommands();
+        registerPlaceholderExpansion();
         setupMetrics();
 
         //register the listener
@@ -58,6 +60,9 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public void onDisable() {
+        if (placeholderExpansion != null) {
+            placeholderExpansion.unregister();
+        }
         closables.forEach(Closable::close);
         this.getLogger().info("Disabled PlayerStats!");
     }
@@ -139,6 +144,13 @@ public final class Main extends JavaPlugin implements PlayerStats {
         PluginCommand sharecmd = this.getCommand("statisticshare");
         if (sharecmd != null) {
             sharecmd.setExecutor(new ShareCommand());
+        }
+    }
+
+    private void registerPlaceholderExpansion() {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            placeholderExpansion = new com.artemis.the.gr8.playerstats.expansion.PlayerStatsExpansion();
+            placeholderExpansion.register();
         }
     }
 
