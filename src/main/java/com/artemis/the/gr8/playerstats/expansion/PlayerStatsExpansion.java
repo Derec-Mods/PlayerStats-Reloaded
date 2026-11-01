@@ -115,3 +115,4 @@ public class PlayerStatsExpansion extends PlaceholderExpansion implements Config
         return placeholderProvider.onRequest(player, args);
     }
 }
+

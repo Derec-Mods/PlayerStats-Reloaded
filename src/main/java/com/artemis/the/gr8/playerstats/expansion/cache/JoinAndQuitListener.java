@@ -27,3 +27,4 @@ public class JoinAndQuitListener implements Listener {
         cache.removeOnlinePlayer(event.getPlayer());
     }
 }
+

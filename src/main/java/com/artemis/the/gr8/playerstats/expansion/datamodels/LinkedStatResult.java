@@ -74,3 +74,4 @@ public class LinkedStatResult {
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }
 }
+

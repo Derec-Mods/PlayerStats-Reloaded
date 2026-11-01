@@ -55,3 +55,4 @@ public record StatType(Statistic statistic, @Nullable Material material, @Nullab
         };
     }
 }
+
