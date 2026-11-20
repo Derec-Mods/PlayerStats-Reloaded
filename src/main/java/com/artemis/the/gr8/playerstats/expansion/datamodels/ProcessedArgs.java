@@ -1,6 +1,7 @@
 package com.artemis.the.gr8.playerstats.expansion.datamodels;
 
 import com.artemis.the.gr8.playerstats.api.enums.Target;
+import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.expansion.ExpansionLogger;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -84,6 +85,13 @@ public class ProcessedArgs {
     }
 
     public @Nullable Statistic getStatistic() {
+        if (statIdentifiers.length == 0 || statIdentifiers[0] == null) {
+            return null;
+        }
+        Statistic aliased = EnumHandler.getInstance().getStatEnum(statIdentifiers[0]);
+        if (aliased != null) {
+            return aliased;
+        }
         try {
             return Statistic.valueOf(statIdentifiers[0].toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException e) {
@@ -170,8 +178,14 @@ public class ProcessedArgs {
             Matcher matcher = targetPattern.matcher(arg);
             if (matcher.find()) {
                 if (arg.startsWith("top:")) {
-                    target = Target.TOP;
-                    topListSize = findTopListSize(arg);
+                    if (arg.equalsIgnoreCase("top:me")) {
+                        target = Target.PLAYER;
+                        playerName = player != null ? player.getName() : null;
+                        isPlayerPositionRequest = true;
+                    } else {
+                        target = Target.TOP;
+                        topListSize = findTopListSize(arg);
+                    }
                 }
                 else if (arg.contains("player:")) {
                     target = Target.PLAYER;

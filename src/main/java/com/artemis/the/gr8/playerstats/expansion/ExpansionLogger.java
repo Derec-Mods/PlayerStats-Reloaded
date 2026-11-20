@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.expansion;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
+
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -13,15 +13,17 @@ public class ExpansionLogger {
 
     private final static Logger myLogger = Logger.getLogger("PlayerStatsExpansion");
     private final static ArrayList<String> loggedMessages = new ArrayList<>();
-    private static Instant storedMessagesLastClearedTimestamp = Instant.now();
 
     public static void logInfo(String msg) {
         myLogger.info(msg);
     }
 
     public static void logWarning(String msg) {
-        if (storedMessagesNeedClearing()) {
-            clearStoredMessages();
+        try {
+            if (ConfigHandler.getInstance().getDebugLevel() < 2) {
+                return;
+            }
+        } catch (Exception ignored) {
         }
         if (!loggedMessages.contains(msg)) {
             loggedMessages.add(msg);
@@ -31,15 +33,6 @@ public class ExpansionLogger {
 
     public static void clear() {
         loggedMessages.clear();
-    }
-
-    private static boolean storedMessagesNeedClearing() {
-        return storedMessagesLastClearedTimestamp.until(Instant.now(), ChronoUnit.SECONDS) > 30;
-    }
-
-    private static void clearStoredMessages() {
-        storedMessagesLastClearedTimestamp = Instant.now();
-        clear();
     }
 }
 

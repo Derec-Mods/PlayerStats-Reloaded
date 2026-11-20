@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class PlayerStatsExpansion extends PlaceholderExpansion implements Configurable, Cacheable {
 
-    final static String VERSION = "2.7.4";
+    final static String VERSION = "2.8.0";
     final static String NEEDED_PLAYERSTATS_API_VERSION = "2";
     private static PlayerStatsExpansion instance;
     private static ExpansionConfig config;
